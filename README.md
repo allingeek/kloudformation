@@ -1,13 +1,31 @@
-# Kloudformation
+# KloudFormation
 
-  Kloudformation is a (proof of concept) 1:1 translation of AWS Cloudformation resources into Kubernetes using custom resource definitions and the Kubebuilder scaffolding. The functionality is _basic_, and there are a bunch of features that haven't been written yet. Additionally, the DockerSwarm resource (also proof of concept at this time) abstracts multiple resources into a ready to go Docker Swarm cluster with sensible(?) defaults.
+KloudFormation is a Kubernetes operator (controller-manager) responsible for managing cloud infrastructure resources. Today it is a translation of selected AWS CloudFormation resources into Kubernetes resources. It uses custom resource definitions (CRDs) and the Kubebuilder scaffolding. However, unlike AWS CloudFormation, this project provides continuous state reconciliation for cloud infrastructure resources. 
 
-## Kloudformation basic resources
+This project also includes other higher-level abstractions. Those provide deployment and management of common infrastructure patterns such as three-tier networks, governance models, and clustered workload platforms.
+
+## Status
+
+This project is exiting the proof-of-concept phase and funded development is driving code refinement and resource catalog expansion. Testing is currently disabled as SIG-testing can't seem to provide a framework without side effects and grotesque leaks.
+
+## Philosophy
+
+OSS will eat the Cloud. But until it does we're going to find ways to eat at the value-add services they provide.
+
+## AWS Resources
+
+Resource selection has been based requirements for higher-level abstractions. Our initial target was launching a Docker Swarm cluster in AWS without any pre-existing environment. To accomplish that task we modeled many EC2 resources (VPC, subnets, gateways, and instances) and typical IAM resources. 
+
+## KloudFormation Infrastructure Resources
 
 ### AuthorizeEC2SecurityGroupIngress
+
 #### Description
-  AuthorizeEC2SecurityGroupIngress (soon to be renamed... too long) creates an ingress rule for an AWS EC2 Security Group
+
+AuthorizeEC2SecurityGroupIngress (soon to be renamed... too long) creates an ingress rule for an AWS EC2 Security Group
+
 #### Spec Fields:
+
 ```
   - ruleName # string- k8s name of the rule. Used in the finalizer applied to the security group.
   - sourceCidrIp # string- ex. "0.0.0.0/0"
@@ -16,13 +34,19 @@
   - toPort # integer
   - ipProtocol # string- tcp, udp, icmp, or protocol number. -1 is all protocols
 ```
+
 #### Dependencies:
+
   - EC2SecurityGroup
 
 ### EC2Instance
+
 #### Description
-  An EC2 instance. Launches 1 instance.
+
+An EC2 instance. Launches 1 instance.
+
 #### Spec Fields:
+
 ```
   - imageId # string- AMI number.
   - instanceType # string- ex. "t2.micro"
@@ -32,7 +56,9 @@
   - ec2SecurityGroupName # string- k8s name of the EC2 security group to assign to the instance. Limit 1 for now.
   - tags
 ```
+
 #### Dependencies:
+
   - Subnet
   - EC2KeyPair
   - EC2SecurityGroup
@@ -253,7 +279,7 @@ An EC2 Keypair
 ```  
 #### Dependencies:
 
-## Kloudformation Advanced Resources
+## KloudFormation Advanced Resources
 
 ### DockerSwarm
 #### Description
